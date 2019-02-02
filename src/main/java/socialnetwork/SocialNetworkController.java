@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @RestController
 public class SocialNetworkController {
 
-    private final List<User> allUsers = new CopyOnWriteArrayList<>();
+    private final List<User> allUsers = new ArrayList<>();
 
     @RequestMapping(value = "/post/user/{userId}", method = RequestMethod.POST)
     public Response post(@PathVariable String userId, @RequestBody String post) {
@@ -90,7 +89,9 @@ public class SocialNetworkController {
         if (!user.isPresent()) {
             User newUser = new User(userId, new Wall(new ArrayList<>()), new ArrayList<>());
 
-            getAllUsers().add(newUser);
+            synchronized (this) {
+                getAllUsers().add(newUser);
+            }
 
             return newUser;
         }
